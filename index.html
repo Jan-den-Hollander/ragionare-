@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Redeneerspiegel</title>
 <meta name="theme-color" content="#12151b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Redeneerspiegel">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -64,11 +70,9 @@
   .over p{line-height:1.7;font-size:0.98rem;color:var(--ink-dim);}
   h2.sectiontitel{font-size:1.15rem;font-weight:600;margin:0 0 16px;}
   .bottom-fixed{position:fixed;bottom:0;left:0;right:0;z-index:10;}
-  .copybar{background:var(--surface-2);border-top:1px solid var(--border);text-align:center;padding:5px 0;font-family:'IBM Plex Mono',monospace;font-size:0.66rem;color:var(--ink-dim);}
   nav.tabs{display:flex;background:var(--surface);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom);}
   nav.tabs button{flex:1;background:none;border:none;color:var(--ink-dim);font-family:'IBM Plex Mono',monospace;font-size:0.68rem;padding:12px 4px 10px;letter-spacing:0.01em;}
   nav.tabs button.active{color:var(--redenering);}
-  #blok-overlay{position:fixed;inset:0;background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;font-family:'IBM Plex Mono',monospace;font-size:0.9rem;line-height:1.6;z-index:9999;}
 
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;z-index:60;padding:20px;}
   .modal-overlay.open{display:flex;}
@@ -80,10 +84,16 @@
   .taal-lijst-btn .vlag{font-size:1.2rem;}
   .prompt-tekst{width:100%;min-height:180px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:0.82rem;line-height:1.5;padding:10px;border-radius:6px;resize:vertical;}
   .plak-instructie{font-size:0.86rem;color:var(--ink-dim);line-height:1.55;margin:10px 0 14px;}
+  .voorbeeld-notitie{font-size:0.82rem;color:var(--redenering);background:var(--redenering-soft);border:1px solid var(--redenering);border-radius:5px;padding:8px 10px;line-height:1.5;margin:0 0 10px;}
   .kopieer-btn{width:100%;background:var(--redenering);color:#1a1408;border:none;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:0.85rem;padding:12px;border-radius:6px;}
+  .ai-uitleg{font-size:0.86rem;color:var(--ink-dim);line-height:1.55;margin:14px 0 8px;}
+  .ai-knoppen{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+  .ai-btn{background:var(--surface-2);border:1px solid var(--border);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;padding:10px 12px;border-radius:6px;text-align:left;}
+  .zelf-doen-uitleg{font-size:0.86rem;color:var(--ink-dim);line-height:1.55;margin:14px 0 4px;padding-top:14px;border-top:1px dashed var(--border);}
 </style>
 </head>
 <body>
+<noscript><div style="padding:60px 24px;text-align:center;font-family:monospace;color:#e8e4da;background:#12151b;min-height:100vh;">Deze app vereist JavaScript.<br>© 2026 Jan den Hollander</div></noscript>
 
 <header>
   <div class="taal-rij" id="taal-rij"></div>
@@ -105,6 +115,15 @@
     <h2 class="sectiontitel" id="tx-nieuwtitel"></h2>
     <label class="field" id="tx-labelstelling"></label>
     <textarea id="n-stelling" rows="3"></textarea>
+
+    <p class="ai-uitleg" id="tx-aiuitleg"></p>
+    <div class="ai-knoppen">
+      <button class="ai-btn" id="btn-ai-feit" onclick="kiesAiPrompt('feit')"></button>
+      <button class="ai-btn" id="btn-ai-redenering" onclick="kiesAiPrompt('redenering')"></button>
+      <button class="ai-btn" id="btn-ai-interpretatie" onclick="kiesAiPrompt('interpretatie')"></button>
+    </div>
+
+    <p class="zelf-doen-uitleg" id="tx-zelfdoenuitleg"></p>
 
     <label class="field" style="margin-top:24px;" id="tx-labelfeit"></label>
     <div id="n-feit"></div>
@@ -139,13 +158,76 @@
 </main>
 
 <div class="bottom-fixed">
-  <div class="copybar" id="copyright-footer">&copy; 2026 Jan den Hollander</div>
+  <!-- ① ZICHTBARE FOOTER (jdh-copyright-footer: onderdeel van de standaard copyright-/integriteitscontrole) -->
+  <div id="jdh-copyright-footer" style="
+    position: static;
+    background: rgba(0,0,0,0.82);
+    color: #ccc;
+    font-size: 11px;
+    text-align: center;
+    padding: 4px 8px;
+    font-family: sans-serif;
+    letter-spacing: 0.3px;
+    user-select: none;
+  ">
+    © <span id="jdh-year"></span> Jan den Hollander &nbsp;|&nbsp;
+    <span id="jdh-project-title" style="color:#7eb8f7"></span> &nbsp;|&nbsp;
+    Vrij gebruik · niet-commercieel · ongewijzigd &nbsp;|&nbsp;
+    <span style="color:#aaa; cursor:pointer; text-decoration:underline"
+          onclick="document.getElementById('jdh-modal').style.display='flex'">
+      ℹ️ Licentie
+    </span>
+  </div>
   <nav class="tabs">
     <button data-s="voorbeeld" class="active" id="tab-voorbeeld" onclick="toon('voorbeeld')"></button>
     <button data-s="nieuw" id="tab-nieuw" onclick="toon('nieuw')"></button>
     <button data-s="bib" id="tab-bib" onclick="toon('bib')"></button>
     <button data-s="over" id="tab-over" onclick="toon('over')"></button>
   </nav>
+</div>
+
+<!-- ② LICENTIE MODAL (jdh-modal) -->
+<div id="jdh-modal" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:999999;
+  align-items:center; justify-content:center;
+">
+  <div style="
+    background:#1a1a2e; color:#e0e0e0;
+    border:1px solid #444; border-radius:10px;
+    max-width:480px; width:90%; padding:24px;
+    font-family:sans-serif; font-size:13px; line-height:1.6;
+  ">
+    <h3 style="color:#7eb8f7; margin-top:0">
+      © Jan den Hollander &nbsp;·&nbsp;
+      <span id="jdh-modal-title" style="font-weight:normal;font-size:12px"></span>
+    </h3>
+    <p>Dit hulpmiddel is <strong>gratis</strong> en mag vrij worden gedeeld,
+    uitsluitend <strong>ongewijzigd</strong> en voor
+    <strong>niet-commerciële</strong> doeleinden, met bronvermelding.</p>
+    <p>Commercieel gebruik, wijziging of verkoop is <strong>verboden</strong>
+    zonder schriftelijke toestemming. Het gebruik van naam of projecttitel
+    impliceert geen toestemming en vormt bij commercieel gebruik een
+    zelfstandige auteursrechtinbreuk.</p>
+    <p style="color:#aaa;font-size:11px">
+      This tool is free and may be shared freely, unmodified, for non-commercial
+      purposes only, with attribution. Commercial use, modification or sale is
+      prohibited.<br><br>
+      Quest'opera è gratuita e può essere condivisa liberamente, senza modifiche,
+      per scopi non commerciali, con attribuzione. L'uso commerciale è vietato.
+    </p>
+    <p style="margin-bottom:4px">
+      📧 <a href="mailto:jandenhollander@duck.com" style="color:#7eb8f7">jandenhollander@duck.com</a>
+    </p>
+    <p style="margin-top:4px;margin-bottom:0">
+      🔗 <a href="https://github.com/Jan-den-Hollander" target="_blank" style="color:#7eb8f7">github.com/Jan-den-Hollander</a>
+    </p>
+    <button onclick="document.getElementById('jdh-modal').style.display='none'"
+            style="margin-top:16px;padding:8px 20px;background:#7eb8f7;color:#000;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">
+      Sluiten
+    </button>
+  </div>
 </div>
 
 <div class="modal-overlay" id="vertaal-modal">
@@ -164,6 +246,7 @@
       <h3 id="tx-prompttitel"></h3>
       <button class="modal-close" aria-label="close" onclick="sluitModal('prompt-modal')">&times;</button>
     </div>
+    <p class="voorbeeld-notitie" id="tx-voorbeeldnotitie" style="display:none;"></p>
     <p class="plak-instructie" id="tx-plakinstructie"></p>
     <textarea class="prompt-tekst" id="prompt-tekst" readonly></textarea>
     <button class="kopieer-btn" id="btn-kopieer" style="margin-top:12px;" onclick="kopieerPrompt()"></button>
@@ -197,6 +280,110 @@ const TALEN_VERTAAL = [
   {naam:'Somalisch', vlag:'🇸🇴'},
   {naam:'Tigrinya', vlag:'🇪🇷'}
 ];
+
+/* Teksten voor de vertaalprompt zelf: staan in de gekozen doeltaal,
+   niet in de interfacetaal. Zo snapt iemand die geen NL/IT/DE/FR leest
+   ook wat er van hem verwacht wordt. */
+const VERTAAL_TR = {
+  'Engels':{
+    promptTitel:"Take the translation with you",
+    plakInstructie:"Open Gemini, ChatGPT or another AI app. Paste the text below into it. You will get an explanation in your language.",
+    kopieerKnop:"Copy text", gekopieerd:"Copied!",
+    promptInstructie:"Translate the following text and explain it. Use simple language. Don't take a side and don't judge — just explain what it says.",
+    tekstLabel:"Text:"
+  },
+  'Arabisch':{
+    promptTitel:"خذ الترجمة معك",
+    plakInstructie:"افتح Gemini أو ChatGPT أو تطبيق ذكاء اصطناعي آخر. الصق النص أدناه هناك. ستحصل على شرح بلغتك.",
+    kopieerKnop:"انسخ النص", gekopieerd:"تم النسخ!",
+    promptInstructie:"ترجم النص التالي واشرحه. استخدم لغة بسيطة. لا تتخذ موقفًا ولا تحكم — فقط اشرح ما هو مكتوب.",
+    tekstLabel:"النص:", rtl:true
+  },
+  'Turks':{
+    promptTitel:"Çeviriyi yanına al",
+    plakInstructie:"Gemini, ChatGPT veya başka bir yapay zeka uygulaması aç. Aşağıdaki metni oraya yapıştır. Kendi dilinde bir açıklama alacaksın.",
+    kopieerKnop:"Metni kopyala", gekopieerd:"Kopyalandı!",
+    promptInstructie:"Aşağıdaki metni çevir ve açıkla. Basit bir dil kullan. Taraf tutma ve yargılama — sadece ne yazdığını açıkla.",
+    tekstLabel:"Metin:"
+  },
+  'Pools':{
+    promptTitel:"Zabierz tłumaczenie ze sobą",
+    plakInstructie:"Otwórz Gemini, ChatGPT lub inną aplikację AI. Wklej tam poniższy tekst. Otrzymasz wyjaśnienie w swoim języku.",
+    kopieerKnop:"Kopiuj tekst", gekopieerd:"Skopiowano!",
+    promptInstructie:"Przetłumacz poniższy tekst i wyjaśnij go. Użyj prostego języka. Nie zajmuj stanowiska i nie oceniaj — po prostu wyjaśnij, co tam jest napisane.",
+    tekstLabel:"Tekst:"
+  },
+  'Oekraïens':{
+    promptTitel:"Візьми переклад із собою",
+    plakInstructie:"Відкрий Gemini, ChatGPT або іншу програму зі штучним інтелектом. Встав туди текст нижче. Ти отримаєш пояснення своєю мовою.",
+    kopieerKnop:"Скопіювати текст", gekopieerd:"Скопійовано!",
+    promptInstructie:"Перекладіть наступний текст і поясніть його. Використовуйте просту мову. Не займайте чиюсь сторону і не оцінюйте — просто поясніть, що там написано.",
+    tekstLabel:"Текст:"
+  },
+  'Russisch':{
+    promptTitel:"Возьми перевод с собой",
+    plakInstructie:"Открой Gemini, ChatGPT или другое приложение с ИИ. Вставь туда текст ниже. Ты получишь объяснение на своём языке.",
+    kopieerKnop:"Скопировать текст", gekopieerd:"Скопировано!",
+    promptInstructie:"Переведи следующий текст и объясни его. Используй простой язык. Не занимай чью-то сторону и не суди — просто объясни, что там написано.",
+    tekstLabel:"Текст:"
+  },
+  'Spaans':{
+    promptTitel:"Llévate la traducción",
+    plakInstructie:"Abre Gemini, ChatGPT u otra app de IA. Pega el texto de abajo allí. Recibirás una explicación en tu idioma.",
+    kopieerKnop:"Copiar texto", gekopieerd:"¡Copiado!",
+    promptInstructie:"Traduce el siguiente texto y explícalo. Usa un lenguaje sencillo. No tomes partido ni juzgues — solo explica lo que dice.",
+    tekstLabel:"Texto:"
+  },
+  'Portugees':{
+    promptTitel:"Leva a tradução contigo",
+    plakInstructie:"Abre o Gemini, o ChatGPT ou outra app de IA. Cola o texto abaixo lá. Vais receber uma explicação na tua língua.",
+    kopieerKnop:"Copiar texto", gekopieerd:"Copiado!",
+    promptInstructie:"Traduz o texto seguinte e explica-o. Usa uma linguagem simples. Não tomes partido nem julgues — explica apenas o que está escrito.",
+    tekstLabel:"Texto:"
+  },
+  'Roemeens':{
+    promptTitel:"Ia traducerea cu tine",
+    plakInstructie:"Deschide Gemini, ChatGPT sau altă aplicație AI. Lipește textul de mai jos acolo. Vei primi o explicație în limba ta.",
+    kopieerKnop:"Copiază textul", gekopieerd:"Copiat!",
+    promptInstructie:"Tradu textul următor și explică-l. Folosește un limbaj simplu. Nu lua partea nimănui și nu judeca — explică doar ce scrie.",
+    tekstLabel:"Text:"
+  },
+  'Bulgaars':{
+    promptTitel:"Вземи превода със себе си",
+    plakInstructie:"Отвори Gemini, ChatGPT или друго приложение с ИИ. Постави текста по-долу там. Ще получиш обяснение на твоя език.",
+    kopieerKnop:"Копирай текста", gekopieerd:"Копирано!",
+    promptInstructie:"Преведи следния текст и го обясни. Използвай прост език. Не заемай страна и не съди — просто обясни какво пише.",
+    tekstLabel:"Текст:"
+  },
+  'Chinees':{
+    promptTitel:"带走翻译",
+    plakInstructie:"打开 Gemini、ChatGPT 或其他人工智能应用。把下面的文字粘贴进去。你会得到用你的语言写的解释。",
+    kopieerKnop:"复制文字", gekopieerd:"已复制！",
+    promptInstructie:"翻译以下文字并解释它。使用简单的语言。不要选边站，也不要评判——只需解释文字的意思。",
+    tekstLabel:"文字："
+  },
+  'Farsi':{
+    promptTitel:"ترجمه را با خود ببر",
+    plakInstructie:"Gemini، ChatGPT یا یک برنامه هوش مصنوعی دیگر را باز کن. متن زیر را در آنجا جای‌گذاری کن. توضیحی به زبان خودت دریافت خواهی کرد.",
+    kopieerKnop:"کپی متن", gekopieerd:"کپی شد!",
+    promptInstructie:"متن زیر را ترجمه کن و توضیح بده. از زبان ساده استفاده کن. طرف کسی را نگیر و قضاوت نکن — فقط توضیح بده که چه نوشته شده است.",
+    tekstLabel:"متن:", rtl:true
+  },
+  'Somalisch':{
+    promptTitel:"La qaado turjumaadda",
+    plakInstructie:"Fur Gemini, ChatGPT ama app kale oo AI ah. Ku dhaji qoraalka hoose halkaas. Waxaad heli doontaa sharaxaad ku qoran luqaddaada.",
+    kopieerKnop:"Koobi qoraalka", gekopieerd:"La koobiyeeyay!",
+    promptInstructie:"Turjun qoraalka soo socda oo sharax. Isticmaal luqad fudud. Ha dhinac qaadan oo ha xukumin — kaliya sharax waxa qoran.",
+    tekstLabel:"Qoraalka:"
+  },
+  'Tigrinya':{
+    promptTitel:"ትርጉም ምሳኻ ውሰዶ",
+    plakInstructie:"ጀሚኒ፡ ቻትጂፒቲ ወይ ካልእ ናይ ኣርቲፊሻል ኢንተለጀንስ መተግበሪ ክፈት። እቲ ኣብ ታሕቲ ዘሎ ጽሑፍ ኣብኡ ለጥፎ። ብቋንቋኻ መብርሂ ክትረክብ ኢኻ።",
+    kopieerKnop:"ጽሑፍ ቅዳሕ", gekopieerd:"ተቐዲሑ!",
+    promptInstructie:"እቲ ዝስዕብ ጽሑፍ ተርጉምን ግለጽን። ቀሊል ቋንቋ ተጠቐም። ወገን ኣይትሒዝ ኣይትፍረድ — ጥራይ እቲ ዘሎ ግለጽ።",
+    tekstLabel:"ጽሑፍ:"
+  }
+};
 
 const TR = {
 nl:{
@@ -245,7 +432,18 @@ nl:{
   promptTitel:"Vertaling meenemen",
   plakInstructie:"Open Gemini, ChatGPT of een andere AI-app. Plak de tekst hieronder daar in. Je krijgt dan uitleg in jouw taal.",
   kopieerKnop:"Kopieer tekst",
-  gekopieerd:"Gekopieerd!"
+  gekopieerd:"Gekopieerd!",
+  aiPromptTitel:"Vraag het de AI",
+  aiUitleg:"Wil je hulp? Vraag het de AI per onderdeel en plak het antwoord in het bijbehorende veld.",
+  aiKnopFeit:"🤖 Vraag AI: feiten",
+  aiKnopRedenering:"🤖 Vraag AI: redenering",
+  aiKnopInterpretatie:"🤖 Vraag AI: andere kijk",
+  stellingWoord:"Stelling:",
+  aiPromptFeit:"Ik wil een stelling toetsen op feiten. Geef alleen beweringen die je kunt nakijken bij officiële bronnen (zoals CBS, CPB, SCP, overheidsdata of verkiezingsprogramma's). Vermeld bij elk feit waar het te controleren is. Laat meningen, interpretaties en oordelen volledig weg — ook je eigen mening over de stelling zelf.",
+  aiPromptRedenering:"Ik wil de redenering achter een stelling ontleden, niet beoordelen of de stelling klopt. Splits de redenering in aparte stappen: aanname → mechanisme → conclusie. Geef bij elke stap ook een even sterk tegengeluid of alternatieve aanname, zodat zwakke schakels zichtbaar worden. Neem zelf geen kant en velt geen eindoordeel.",
+  aiPromptInterpretatie:"Geef minstens drie verschillende, gelijkwaardige manieren om de volgende stelling te verklaren of te duiden (bijvoorbeeld uit verschillende wetenschappelijke of politieke invalshoeken). Zet ze naast elkaar zonder er een als 'juister' of 'waarschijnlijker' te bestempelen dan de andere. Geef geen eigen voorkeur of eindoordeel.",
+  voorbeeldNotitie:"Let op: er staat nog geen eigen stelling ingevuld. Dit is de voorbeeldtekst, alleen om te laten zien hoe het werkt.",
+  zelfDoenUitleg:"Je kunt ook zonder AI verder: vul de velden hieronder gewoon zelf in, voeg zoveel punten toe als je wilt — ook dingen die de AI niet noemde — en bewaar je eigen ontleding. Gebruik de AI als startpunt, of sla 'm helemaal over."
 },
 it:{
   tagline:"Questa app divide una frase in pezzi piccoli. Così puoi pensare da solo. L'app non dice cosa è vero.",
@@ -293,7 +491,18 @@ it:{
   promptTitel:"Porta la traduzione con te",
   plakInstructie:"Apri Gemini, ChatGPT o un'altra app AI. Incolla lì il testo qui sotto. Riceverai una spiegazione nella tua lingua.",
   kopieerKnop:"Copia testo",
-  gekopieerd:"Copiato!"
+  gekopieerd:"Copiato!",
+  aiPromptTitel:"Chiedilo all'IA",
+  aiUitleg:"Vuoi aiuto? Chiedilo all'IA per ciascuna parte e incolla la risposta nel campo corrispondente.",
+  aiKnopFeit:"🤖 Chiedi IA: fatti",
+  aiKnopRedenering:"🤖 Chiedi IA: ragionamento",
+  aiKnopInterpretatie:"🤖 Chiedi IA: altri punti di vista",
+  stellingWoord:"Frase:",
+  aiPromptFeit:"Voglio verificare una frase sui fatti. Indica solo affermazioni che si possono controllare con fonti ufficiali (come Istat, dati governativi o programmi elettorali). Per ogni fatto, indica dove verificarlo. Non includere opinioni, interpretazioni o giudizi — nemmeno la tua opinione sulla frase stessa.",
+  aiPromptRedenering:"Voglio analizzare il ragionamento dietro una frase, non giudicare se è vera. Dividi il ragionamento in passaggi separati: premessa → meccanismo → conclusione. Per ogni passaggio, dai anche un contro-argomento altrettanto forte, così i punti deboli diventano visibili. Non prendere posizione e non dare un giudizio finale.",
+  aiPromptInterpretatie:"Dai almeno tre modi diversi ed equivalenti per spiegare o interpretare la frase seguente (per esempio da diverse prospettive scientifiche o politiche). Mettili uno accanto all'altro senza indicarne uno come 'più giusto' o 'più probabile'. Non dare una tua preferenza o un giudizio finale.",
+  voorbeeldNotitie:"Attenzione: non hai ancora inserito una tua frase. Questo è il testo di esempio, solo per mostrare come funziona.",
+  zelfDoenUitleg:"Puoi anche continuare senza IA: compila tu stesso i campi qui sotto, aggiungi quanti punti vuoi — anche cose che l'IA non ha menzionato — e salva la tua analisi. Usa l'IA come punto di partenza, oppure saltala del tutto."
 },
 de:{
   tagline:"Diese App zerlegt eine Aussage in kleine Teile. So kannst du selbst nachdenken. Die App sagt nicht, was wahr ist.",
@@ -341,7 +550,18 @@ de:{
   promptTitel:"Übersetzung mitnehmen",
   plakInstructie:"Öffne Gemini, ChatGPT oder eine andere KI-App. Füge den Text unten dort ein. Du bekommst dann eine Erklärung in deiner Sprache.",
   kopieerKnop:"Text kopieren",
-  gekopieerd:"Kopiert!"
+  gekopieerd:"Kopiert!",
+  aiPromptTitel:"Frag die KI",
+  aiUitleg:"Möchtest du Hilfe? Frag die KI für jeden Teil einzeln und füge die Antwort in das passende Feld ein.",
+  aiKnopFeit:"🤖 KI fragen: Fakten",
+  aiKnopRedenering:"🤖 KI fragen: Gedankengang",
+  aiKnopInterpretatie:"🤖 KI fragen: andere Sicht",
+  stellingWoord:"Aussage:",
+  aiPromptFeit:"Ich möchte eine Aussage auf Fakten prüfen. Nenne nur Behauptungen, die man mit offiziellen Quellen prüfen kann (z. B. amtliche Statistiken, Regierungsdaten oder Wahlprogramme). Gib bei jedem Fakt an, wo man ihn prüfen kann. Lass Meinungen, Interpretationen und Urteile komplett weg — auch deine eigene Meinung zur Aussage selbst.",
+  aiPromptRedenering:"Ich möchte den Gedankengang hinter einer Aussage zerlegen, nicht beurteilen, ob sie stimmt. Teile den Gedankengang in einzelne Schritte: Annahme → Mechanismus → Schluss. Gib bei jedem Schritt auch ein gleich starkes Gegenargument, damit schwache Stellen sichtbar werden. Nimm selbst keine Seite ein und fälle kein Endurteil.",
+  aiPromptInterpretatie:"Gib mindestens drei verschiedene, gleichwertige Arten, die folgende Aussage zu erklären oder zu deuten (zum Beispiel aus unterschiedlichen wissenschaftlichen oder politischen Blickwinkeln). Stelle sie nebeneinander, ohne eine als 'richtiger' oder 'wahrscheinlicher' zu bezeichnen. Gib keine eigene Präferenz oder ein Endurteil.",
+  voorbeeldNotitie:"Achtung: Du hast noch keine eigene Aussage eingegeben. Das ist der Beispieltext, nur um zu zeigen, wie es funktioniert.",
+  zelfDoenUitleg:"Du kannst auch ohne KI weitermachen: fülle die Felder unten einfach selbst aus, füge so viele Punkte hinzu, wie du willst — auch Dinge, die die KI nicht genannt hat — und speichere deine eigene Analyse. Nutze die KI als Ausgangspunkt oder lass sie ganz weg."
 },
 fr:{
   tagline:"Cette appli découpe une phrase en petits morceaux. Tu peux ainsi réfléchir toi-même. L'appli ne dit pas ce qui est vrai.",
@@ -389,7 +609,18 @@ fr:{
   promptTitel:"Emporter la traduction",
   plakInstructie:"Ouvre Gemini, ChatGPT ou une autre appli IA. Colle le texte ci-dessous là-bas. Tu recevras une explication dans ta langue.",
   kopieerKnop:"Copier le texte",
-  gekopieerd:"Copié !"
+  gekopieerd:"Copié !",
+  aiPromptTitel:"Demande à l'IA",
+  aiUitleg:"Tu veux de l'aide ? Demande à l'IA pour chaque partie et colle la réponse dans le champ correspondant.",
+  aiKnopFeit:"🤖 Demander à l'IA : faits",
+  aiKnopRedenering:"🤖 Demander à l'IA : raisonnement",
+  aiKnopInterpretatie:"🤖 Demander à l'IA : autre regard",
+  stellingWoord:"Énoncé :",
+  aiPromptFeit:"Je veux vérifier une phrase sur les faits. Indique seulement des affirmations vérifiables avec des sources officielles (statistiques officielles, données gouvernementales ou programmes électoraux). Indique pour chaque fait où le vérifier. Laisse complètement de côté les opinions, interprétations et jugements — y compris ton propre avis sur la phrase elle-même.",
+  aiPromptRedenering:"Je veux analyser le raisonnement derrière une phrase, pas juger si elle est vraie. Découpe le raisonnement en étapes séparées : hypothèse → mécanisme → conclusion. Donne aussi, pour chaque étape, un contre-argument tout aussi solide, afin de révéler les points faibles. Ne prends pas parti et ne donne pas de jugement final.",
+  aiPromptInterpretatie:"Donne au moins trois façons différentes et équivalentes d'expliquer ou d'interpréter la phrase suivante (par exemple sous différents angles scientifiques ou politiques). Mets-les côte à côte sans en présenter une comme 'plus juste' ou 'plus probable'. Ne donne pas ta propre préférence ni de jugement final.",
+  voorbeeldNotitie:"Attention : tu n'as pas encore saisi ta propre phrase. Ceci est le texte d'exemple, juste pour montrer comment ça marche.",
+  zelfDoenUitleg:"Tu peux aussi continuer sans IA : remplis toi-même les champs ci-dessous, ajoute autant de points que tu veux — même des choses que l'IA n'a pas mentionnées — et enregistre ta propre analyse. Utilise l'IA comme point de départ, ou saute-la complètement."
 }
 };
 
@@ -428,6 +659,11 @@ function render(){
   document.getElementById('tx-nieuwtitel').textContent = t.nieuwTitel;
   document.getElementById('tx-labelstelling').textContent = t.labelStelling;
   document.getElementById('n-stelling').placeholder = t.placeholderStelling;
+  document.getElementById('tx-aiuitleg').textContent = t.aiUitleg;
+  document.getElementById('btn-ai-feit').textContent = t.aiKnopFeit;
+  document.getElementById('btn-ai-redenering').textContent = t.aiKnopRedenering;
+  document.getElementById('btn-ai-interpretatie').textContent = t.aiKnopInterpretatie;
+  document.getElementById('tx-zelfdoenuitleg').textContent = t.zelfDoenUitleg;
   document.getElementById('tx-labelfeit').textContent = t.labelFeit;
   document.getElementById('btn-addfeit').textContent = t.addFeit;
   document.getElementById('tx-labelredenering').textContent = t.labelRedenering;
@@ -568,11 +804,54 @@ function maakPrompt(taalnaam, inhoud){
   return "Vertaal en leg de volgende tekst uit in het "+taalnaam+". Gebruik eenvoudige taal. Neem zelf geen standpunt in en oordeel niet, leg alleen uit wat er staat.\n\nTekst:\n"+inhoud;
 }
 
+let huidigeVertaalTaal = null;
+
+function toonVoorbeeldNotitie(isVoorbeeld){
+  const el = document.getElementById('tx-voorbeeldnotitie');
+  if(isVoorbeeld){
+    el.textContent = TR[huidigeTaal].voorbeeldNotitie;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function kiesAiPrompt(laag){
+  const t = TR[huidigeTaal];
+  huidigeVertaalTaal = null;
+  const modalBox = document.querySelector('#prompt-modal .modal-box');
+  const ta = document.getElementById('prompt-tekst');
+  modalBox.removeAttribute('dir');
+  ta.removeAttribute('dir');
+
+  document.getElementById('tx-prompttitel').textContent = t.aiPromptTitel;
+  document.getElementById('tx-plakinstructie').textContent = t.plakInstructie;
+  document.getElementById('btn-kopieer').textContent = t.kopieerKnop;
+
+  const eigenStelling = document.getElementById('n-stelling').value.trim();
+  toonVoorbeeldNotitie(!eigenStelling);
+  const stelling = eigenStelling || t.stelling;
+  const instructie = laag==='feit' ? t.aiPromptFeit : laag==='redenering' ? t.aiPromptRedenering : t.aiPromptInterpretatie;
+  ta.value = instructie + "\n\n" + t.stellingWoord + "\n" + stelling;
+  openModal('prompt-modal');
+}
+
 function kiesVertaalTaal(taalnaam){
   sluitModal('vertaal-modal');
+  huidigeVertaalTaal = taalnaam;
+  const vt = VERTAAL_TR[taalnaam];
+  const modalBox = document.querySelector('#prompt-modal .modal-box');
+  const ta = document.getElementById('prompt-tekst');
+
+  document.getElementById('tx-prompttitel').textContent = vt.promptTitel;
+  document.getElementById('tx-plakinstructie').textContent = vt.plakInstructie;
+  document.getElementById('btn-kopieer').textContent = vt.kopieerKnop;
+  if(vt.rtl){ modalBox.setAttribute('dir','rtl'); ta.setAttribute('dir','rtl'); }
+  else { modalBox.removeAttribute('dir'); ta.removeAttribute('dir'); }
+
+  toonVoorbeeldNotitie(!document.getElementById('n-stelling').value.trim());
   const inhoud = haalInhoudOp();
-  const prompt = maakPrompt(taalnaam, inhoud);
-  document.getElementById('prompt-tekst').value = prompt;
+  ta.value = vt.promptInstructie + "\n\n" + vt.tekstLabel + "\n" + inhoud;
   openModal('prompt-modal');
 }
 
@@ -582,10 +861,10 @@ function kopieerPrompt(){
   ta.select();
   ta.setSelectionRange(0, 999999);
   const klaar = () => {
-    const t = TR[huidigeTaal];
+    const vt = huidigeVertaalTaal ? VERTAAL_TR[huidigeVertaalTaal] : TR[huidigeTaal];
     const btn = document.getElementById('btn-kopieer');
-    const orig = t.kopieerKnop;
-    btn.textContent = t.gekopieerd;
+    const orig = vt.kopieerKnop;
+    btn.textContent = vt.gekopieerd;
     setTimeout(()=>{ btn.textContent = orig; }, 1800);
   };
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -598,22 +877,130 @@ function kopieerPrompt(){
 }
 
 function openModal(id){ document.getElementById(id).classList.add('open'); }
-function sluitModal(id){ document.getElementById(id).classList.remove('open'); }
+function sluitModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id === 'prompt-modal'){
+    huidigeVertaalTaal = null;
+    const t = TR[huidigeTaal];
+    document.getElementById('tx-prompttitel').textContent = t.promptTitel;
+    document.getElementById('tx-plakinstructie').textContent = t.plakInstructie;
+    document.getElementById('btn-kopieer').textContent = t.kopieerKnop;
+    document.querySelector('#prompt-modal .modal-box').removeAttribute('dir');
+    document.getElementById('prompt-tekst').removeAttribute('dir');
+    document.getElementById('tx-voorbeeldnotitie').style.display = 'none';
+  }
+}
 
-/* --- copyright: niet verwijderen --- */
-const COPY_TEXT = '© 2026 Jan den Hollander';
-function blokApp(){
-  document.body.innerHTML = '<div id="blok-overlay">Deze app werkt alleen met de copyrightvermelding intact.<br>' + COPY_TEXT + '</div>';
-}
-function checkCopyright(){
-  const el = document.getElementById('copyright-footer');
-  if(!el || el.textContent.trim() !== COPY_TEXT){ blokApp(); }
-}
-const copyrightGuard = new MutationObserver(checkCopyright);
-copyrightGuard.observe(document.body, {childList:true, subtree:true, characterData:true});
+/* --- ③ INTEGRITEITSCHECK + URL-CHECK (standaard Jan den Hollander-systeem) --- */
+(function() {
+  'use strict';
+  var projectName = document.title || 'Onbekend project';
+  var yearEl = document.getElementById('jdh-year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  var titleEl = document.getElementById('jdh-project-title');
+  if (titleEl) titleEl.textContent = projectName;
+  var modalTitleEl = document.getElementById('jdh-modal-title');
+  if (modalTitleEl) modalTitleEl.textContent = projectName;
+
+  // ── URL-check: toegestane domeinen voor Redeneerspiegel ──────────────
+  var ALLOWED = [
+    'localhost',
+    '127.0.0.1',
+    'jan-den-hollander.github.io',
+    'ragionare.vercel.app',
+    'ragionare',
+    'claude.ai',
+    'stackblitz.io',
+    'stackblitz.com'
+  ];
+
+  function domainAllowed() {
+    var host = window.location.hostname.toLowerCase();
+    var proto = window.location.protocol;
+    if (proto === 'file:' || proto === 'content:') return true;
+    if (!host || host === '') return true;
+    return ALLOWED.some(function(a) {
+      return host === a || host.endsWith('.' + a) || host.indexOf(a) !== -1;
+    });
+  }
+
+  function warnDomain() {
+    var banner = document.createElement('div');
+    banner.id = 'jdh-domain-warning';
+    banner.style.cssText =
+      'position:fixed;top:0;left:0;right:0;z-index:99998;' +
+      'background:#8a2010;color:#fff;font-family:sans-serif;' +
+      'font-size:12px;text-align:center;padding:8px 12px;line-height:1.5;';
+    banner.innerHTML =
+      '⚠️ <strong>' + projectName + '</strong> draait op een niet-erkend domein ' +
+      '(<em>' + window.location.hostname + '</em>). ' +
+      'Origineel: <a href="https://github.com/Jan-den-Hollander" ' +
+      'target="_blank" style="color:#ffccaa">github.com/Jan-den-Hollander</a> · ' +
+      '<a href="mailto:jandenhollander@duck.com" style="color:#ffccaa">' +
+      'jandenhollander@duck.com</a>';
+    document.body.insertBefore(banner, document.body.firstChild);
+  }
+
+  if (!domainAllowed()) { setTimeout(warnDomain, 800); }
+
+  function blockApp() {
+    document.body.innerHTML = '';
+    document.body.style.cssText = 'margin:0;background:#111;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;';
+    document.body.innerHTML =
+      '<div style="text-align:center;color:#e55;max-width:440px;padding:24px">' +
+      '<div style="font-size:52px">⛔</div>' +
+      '<h2 style="color:#e55;margin:12px 0 8px">Toegang geblokkeerd</h2>' +
+      '<p style="color:#ddd;font-size:14px">De copyright-informatie van <strong style="color:#7eb8f7">' + projectName + '</strong> is verwijderd of gewijzigd.</p>' +
+      '<p style="color:#aaa;font-size:12px">The copyright information of this application has been removed or modified.<br>La sezione copyright di questa applicazione è stata rimossa o modificata.</p>' +
+      '<hr style="border-color:#333;margin:16px 0">' +
+      '<p style="color:#ccc;font-size:13px">© Jan den Hollander</p>' +
+      '<p><a href="mailto:jandenhollander@duck.com" style="color:#7eb8f7;font-size:12px">jandenhollander@duck.com</a></p>' +
+      '<p><a href="https://github.com/Jan-den-Hollander" target="_blank" style="color:#7eb8f7;font-size:12px">🔗 github.com/Jan-den-Hollander</a></p>' +
+      '</div>';
+  }
+
+  function checkIntegrity() {
+    var footer = document.getElementById('jdh-copyright-footer');
+    var modal  = document.getElementById('jdh-modal');
+    if (!footer || !modal) { blockApp(); return; }
+    var fs = window.getComputedStyle(footer);
+    if (fs.display === 'none' || fs.visibility === 'hidden' || fs.opacity === '0') {
+      footer.style.cssText += ';display:block!important;visibility:visible!important;opacity:1!important';
+    }
+  }
+
+  checkIntegrity();
+  setInterval(checkIntegrity, 3000);
+
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.removedNodes.forEach(function(node) {
+        if (node.id === 'jdh-copyright-footer' || node.id === 'jdh-modal') blockApp();
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
 
 render();
-checkCopyright();
+
+/* --- PWA: installeerbaar + basis offline-cache --- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    const swCode = "self.addEventListener('install',e=>self.skipWaiting());"+
+      "self.addEventListener('activate',e=>self.clients.claim());"+
+      "self.addEventListener('fetch',e=>{"+
+        "e.respondWith(caches.open('redeneerspiegel-v1').then(cache=>"+
+          "cache.match(e.request).then(resp=>{"+
+            "const netFetch=fetch(e.request).then(netResp=>{cache.put(e.request,netResp.clone());return netResp;}).catch(()=>resp);"+
+            "return resp||netFetch;"+
+          "})"+
+        "));"+
+      "});";
+    const blob = new Blob([swCode], {type:'text/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
