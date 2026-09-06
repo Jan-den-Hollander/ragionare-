@@ -85,7 +85,9 @@
   .prompt-tekst{width:100%;min-height:180px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:0.82rem;line-height:1.5;padding:10px;border-radius:6px;resize:vertical;}
   .plak-instructie{font-size:0.86rem;color:var(--ink-dim);line-height:1.55;margin:10px 0 14px;}
   .voorbeeld-notitie{font-size:0.82rem;color:var(--redenering);background:var(--redenering-soft);border:1px solid var(--redenering);border-radius:5px;padding:8px 10px;line-height:1.5;margin:0 0 10px;}
-  .kopieer-btn{width:100%;background:var(--redenering);color:#1a1408;border:none;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:0.85rem;padding:12px;border-radius:6px;}
+  .kopieer-btn{flex:1;background:var(--redenering);color:#1a1408;border:none;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:0.85rem;padding:12px;border-radius:6px;}
+  .deel-btn{flex:1;background:var(--surface-2);color:var(--ink);border:1px solid var(--redenering);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:0.85rem;padding:12px;border-radius:6px;display:none;}
+  .prompt-knoppen{display:flex;gap:8px;margin-top:12px;}
   .ai-uitleg{font-size:0.86rem;color:var(--ink-dim);line-height:1.55;margin:14px 0 8px;}
   .ai-knoppen{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
   .ai-btn{background:var(--surface-2);border:1px solid var(--border);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;padding:10px 12px;border-radius:6px;text-align:left;}
@@ -249,7 +251,10 @@
     <p class="voorbeeld-notitie" id="tx-voorbeeldnotitie" style="display:none;"></p>
     <p class="plak-instructie" id="tx-plakinstructie"></p>
     <textarea class="prompt-tekst" id="prompt-tekst" readonly></textarea>
-    <button class="kopieer-btn" id="btn-kopieer" style="margin-top:12px;" onclick="kopieerPrompt()"></button>
+    <div class="prompt-knoppen">
+      <button class="kopieer-btn" id="btn-kopieer" onclick="kopieerPrompt()"></button>
+      <button class="deel-btn" id="btn-deel" onclick="deelPrompt()"></button>
+    </div>
   </div>
 </div>
 
@@ -288,98 +293,98 @@ const VERTAAL_TR = {
   'Engels':{
     promptTitel:"Take the translation with you",
     plakInstructie:"Open Gemini, ChatGPT or another AI app. Paste the text below into it. You will get an explanation in your language.",
-    kopieerKnop:"Copy text", gekopieerd:"Copied!",
+    kopieerKnop:"Copy text", gekopieerd:"Copied!", deelKnop:"Share",
     promptInstructie:"Translate the following text and explain it. Use simple language. Don't take a side and don't judge — just explain what it says.",
     tekstLabel:"Text:"
   },
   'Arabisch':{
     promptTitel:"خذ الترجمة معك",
     plakInstructie:"افتح Gemini أو ChatGPT أو تطبيق ذكاء اصطناعي آخر. الصق النص أدناه هناك. ستحصل على شرح بلغتك.",
-    kopieerKnop:"انسخ النص", gekopieerd:"تم النسخ!",
+    kopieerKnop:"انسخ النص", gekopieerd:"تم النسخ!", deelKnop:"مشاركة",
     promptInstructie:"ترجم النص التالي واشرحه. استخدم لغة بسيطة. لا تتخذ موقفًا ولا تحكم — فقط اشرح ما هو مكتوب.",
     tekstLabel:"النص:", rtl:true
   },
   'Turks':{
     promptTitel:"Çeviriyi yanına al",
     plakInstructie:"Gemini, ChatGPT veya başka bir yapay zeka uygulaması aç. Aşağıdaki metni oraya yapıştır. Kendi dilinde bir açıklama alacaksın.",
-    kopieerKnop:"Metni kopyala", gekopieerd:"Kopyalandı!",
+    kopieerKnop:"Metni kopyala", gekopieerd:"Kopyalandı!", deelKnop:"Paylaş",
     promptInstructie:"Aşağıdaki metni çevir ve açıkla. Basit bir dil kullan. Taraf tutma ve yargılama — sadece ne yazdığını açıkla.",
     tekstLabel:"Metin:"
   },
   'Pools':{
     promptTitel:"Zabierz tłumaczenie ze sobą",
     plakInstructie:"Otwórz Gemini, ChatGPT lub inną aplikację AI. Wklej tam poniższy tekst. Otrzymasz wyjaśnienie w swoim języku.",
-    kopieerKnop:"Kopiuj tekst", gekopieerd:"Skopiowano!",
+    kopieerKnop:"Kopiuj tekst", gekopieerd:"Skopiowano!", deelKnop:"Udostępnij",
     promptInstructie:"Przetłumacz poniższy tekst i wyjaśnij go. Użyj prostego języka. Nie zajmuj stanowiska i nie oceniaj — po prostu wyjaśnij, co tam jest napisane.",
     tekstLabel:"Tekst:"
   },
   'Oekraïens':{
     promptTitel:"Візьми переклад із собою",
     plakInstructie:"Відкрий Gemini, ChatGPT або іншу програму зі штучним інтелектом. Встав туди текст нижче. Ти отримаєш пояснення своєю мовою.",
-    kopieerKnop:"Скопіювати текст", gekopieerd:"Скопійовано!",
+    kopieerKnop:"Скопіювати текст", gekopieerd:"Скопійовано!", deelKnop:"Поділитися",
     promptInstructie:"Перекладіть наступний текст і поясніть його. Використовуйте просту мову. Не займайте чиюсь сторону і не оцінюйте — просто поясніть, що там написано.",
     tekstLabel:"Текст:"
   },
   'Russisch':{
     promptTitel:"Возьми перевод с собой",
     plakInstructie:"Открой Gemini, ChatGPT или другое приложение с ИИ. Вставь туда текст ниже. Ты получишь объяснение на своём языке.",
-    kopieerKnop:"Скопировать текст", gekopieerd:"Скопировано!",
+    kopieerKnop:"Скопировать текст", gekopieerd:"Скопировано!", deelKnop:"Поделиться",
     promptInstructie:"Переведи следующий текст и объясни его. Используй простой язык. Не занимай чью-то сторону и не суди — просто объясни, что там написано.",
     tekstLabel:"Текст:"
   },
   'Spaans':{
     promptTitel:"Llévate la traducción",
     plakInstructie:"Abre Gemini, ChatGPT u otra app de IA. Pega el texto de abajo allí. Recibirás una explicación en tu idioma.",
-    kopieerKnop:"Copiar texto", gekopieerd:"¡Copiado!",
+    kopieerKnop:"Copiar texto", gekopieerd:"¡Copiado!", deelKnop:"Compartir",
     promptInstructie:"Traduce el siguiente texto y explícalo. Usa un lenguaje sencillo. No tomes partido ni juzgues — solo explica lo que dice.",
     tekstLabel:"Texto:"
   },
   'Portugees':{
     promptTitel:"Leva a tradução contigo",
     plakInstructie:"Abre o Gemini, o ChatGPT ou outra app de IA. Cola o texto abaixo lá. Vais receber uma explicação na tua língua.",
-    kopieerKnop:"Copiar texto", gekopieerd:"Copiado!",
+    kopieerKnop:"Copiar texto", gekopieerd:"Copiado!", deelKnop:"Partilhar",
     promptInstructie:"Traduz o texto seguinte e explica-o. Usa uma linguagem simples. Não tomes partido nem julgues — explica apenas o que está escrito.",
     tekstLabel:"Texto:"
   },
   'Roemeens':{
     promptTitel:"Ia traducerea cu tine",
     plakInstructie:"Deschide Gemini, ChatGPT sau altă aplicație AI. Lipește textul de mai jos acolo. Vei primi o explicație în limba ta.",
-    kopieerKnop:"Copiază textul", gekopieerd:"Copiat!",
+    kopieerKnop:"Copiază textul", gekopieerd:"Copiat!", deelKnop:"Distribuie",
     promptInstructie:"Tradu textul următor și explică-l. Folosește un limbaj simplu. Nu lua partea nimănui și nu judeca — explică doar ce scrie.",
     tekstLabel:"Text:"
   },
   'Bulgaars':{
     promptTitel:"Вземи превода със себе си",
     plakInstructie:"Отвори Gemini, ChatGPT или друго приложение с ИИ. Постави текста по-долу там. Ще получиш обяснение на твоя език.",
-    kopieerKnop:"Копирай текста", gekopieerd:"Копирано!",
+    kopieerKnop:"Копирай текста", gekopieerd:"Копирано!", deelKnop:"Сподели",
     promptInstructie:"Преведи следния текст и го обясни. Използвай прост език. Не заемай страна и не съди — просто обясни какво пише.",
     tekstLabel:"Текст:"
   },
   'Chinees':{
     promptTitel:"带走翻译",
     plakInstructie:"打开 Gemini、ChatGPT 或其他人工智能应用。把下面的文字粘贴进去。你会得到用你的语言写的解释。",
-    kopieerKnop:"复制文字", gekopieerd:"已复制！",
+    kopieerKnop:"复制文字", gekopieerd:"已复制！", deelKnop:"分享",
     promptInstructie:"翻译以下文字并解释它。使用简单的语言。不要选边站，也不要评判——只需解释文字的意思。",
     tekstLabel:"文字："
   },
   'Farsi':{
     promptTitel:"ترجمه را با خود ببر",
     plakInstructie:"Gemini، ChatGPT یا یک برنامه هوش مصنوعی دیگر را باز کن. متن زیر را در آنجا جای‌گذاری کن. توضیحی به زبان خودت دریافت خواهی کرد.",
-    kopieerKnop:"کپی متن", gekopieerd:"کپی شد!",
+    kopieerKnop:"کپی متن", gekopieerd:"کپی شد!", deelKnop:"اشتراک‌گذاری",
     promptInstructie:"متن زیر را ترجمه کن و توضیح بده. از زبان ساده استفاده کن. طرف کسی را نگیر و قضاوت نکن — فقط توضیح بده که چه نوشته شده است.",
     tekstLabel:"متن:", rtl:true
   },
   'Somalisch':{
     promptTitel:"La qaado turjumaadda",
     plakInstructie:"Fur Gemini, ChatGPT ama app kale oo AI ah. Ku dhaji qoraalka hoose halkaas. Waxaad heli doontaa sharaxaad ku qoran luqaddaada.",
-    kopieerKnop:"Koobi qoraalka", gekopieerd:"La koobiyeeyay!",
+    kopieerKnop:"Koobi qoraalka", gekopieerd:"La koobiyeeyay!", deelKnop:"Wadaag",
     promptInstructie:"Turjun qoraalka soo socda oo sharax. Isticmaal luqad fudud. Ha dhinac qaadan oo ha xukumin — kaliya sharax waxa qoran.",
     tekstLabel:"Qoraalka:"
   },
   'Tigrinya':{
     promptTitel:"ትርጉም ምሳኻ ውሰዶ",
     plakInstructie:"ጀሚኒ፡ ቻትጂፒቲ ወይ ካልእ ናይ ኣርቲፊሻል ኢንተለጀንስ መተግበሪ ክፈት። እቲ ኣብ ታሕቲ ዘሎ ጽሑፍ ኣብኡ ለጥፎ። ብቋንቋኻ መብርሂ ክትረክብ ኢኻ።",
-    kopieerKnop:"ጽሑፍ ቅዳሕ", gekopieerd:"ተቐዲሑ!",
+    kopieerKnop:"ጽሑፍ ቅዳሕ", gekopieerd:"ተቐዲሑ!", deelKnop:"ኣካፍል",
     promptInstructie:"እቲ ዝስዕብ ጽሑፍ ተርጉምን ግለጽን። ቀሊል ቋንቋ ተጠቐም። ወገን ኣይትሒዝ ኣይትፍረድ — ጥራይ እቲ ዘሎ ግለጽ።",
     tekstLabel:"ጽሑፍ:"
   }
@@ -433,13 +438,14 @@ nl:{
   plakInstructie:"Open Gemini, ChatGPT of een andere AI-app. Plak de tekst hieronder daar in. Je krijgt dan uitleg in jouw taal.",
   kopieerKnop:"Kopieer tekst",
   gekopieerd:"Gekopieerd!",
+  deelKnop:"Delen",
   aiPromptTitel:"Vraag het de AI",
   aiUitleg:"Wil je hulp? Vraag het de AI per onderdeel en plak het antwoord in het bijbehorende veld.",
   aiKnopFeit:"🤖 Vraag AI: feiten",
   aiKnopRedenering:"🤖 Vraag AI: redenering",
   aiKnopInterpretatie:"🤖 Vraag AI: andere kijk",
   stellingWoord:"Stelling:",
-  aiPromptFeit:"Ik wil een stelling toetsen op feiten. Geef alleen beweringen die je kunt nakijken bij officiële bronnen (zoals CBS, CPB, SCP, overheidsdata of verkiezingsprogramma's). Vermeld bij elk feit waar het te controleren is. Laat meningen, interpretaties en oordelen volledig weg — ook je eigen mening over de stelling zelf.",
+  aiPromptFeit:"Ik wil een stelling toetsen op feiten. Noem alleen beweringen die je kunt natrekken bij officiële, onafhankelijke bronnen. Kies bronnen die passen bij het land waar de stelling over gaat — bijvoorbeeld het nationale statistiekbureau (zoals CBS in Nederland, Destatis in Duitsland, INSEE in Frankrijk, ONS in het Verenigd Koninkrijk), overheidsdata, parlementaire onderzoeksdiensten, internationale instanties zoals Eurostat of de OESO bij vergelijkingen tussen landen, of gerenommeerde factcheckorganisaties. Vermeld bij elk feit welke bron je hebt gebruikt. Laat meningen, interpretaties en oordelen volledig weg — ook je eigen mening over de stelling zelf.",
   aiPromptRedenering:"Ik wil de redenering achter een stelling ontleden, niet beoordelen of de stelling klopt. Splits de redenering in aparte stappen: aanname → mechanisme → conclusie. Geef bij elke stap ook een even sterk tegengeluid of alternatieve aanname, zodat zwakke schakels zichtbaar worden. Neem zelf geen kant en velt geen eindoordeel.",
   aiPromptInterpretatie:"Geef minstens drie verschillende, gelijkwaardige manieren om de volgende stelling te verklaren of te duiden (bijvoorbeeld uit verschillende wetenschappelijke of politieke invalshoeken). Zet ze naast elkaar zonder er een als 'juister' of 'waarschijnlijker' te bestempelen dan de andere. Geef geen eigen voorkeur of eindoordeel.",
   voorbeeldNotitie:"Let op: er staat nog geen eigen stelling ingevuld. Dit is de voorbeeldtekst, alleen om te laten zien hoe het werkt.",
@@ -492,13 +498,14 @@ it:{
   plakInstructie:"Apri Gemini, ChatGPT o un'altra app AI. Incolla lì il testo qui sotto. Riceverai una spiegazione nella tua lingua.",
   kopieerKnop:"Copia testo",
   gekopieerd:"Copiato!",
+  deelKnop:"Condividi",
   aiPromptTitel:"Chiedilo all'IA",
   aiUitleg:"Vuoi aiuto? Chiedilo all'IA per ciascuna parte e incolla la risposta nel campo corrispondente.",
   aiKnopFeit:"🤖 Chiedi IA: fatti",
   aiKnopRedenering:"🤖 Chiedi IA: ragionamento",
   aiKnopInterpretatie:"🤖 Chiedi IA: altri punti di vista",
   stellingWoord:"Frase:",
-  aiPromptFeit:"Voglio verificare una frase sui fatti. Indica solo affermazioni che si possono controllare con fonti ufficiali (come Istat, dati governativi o programmi elettorali). Per ogni fatto, indica dove verificarlo. Non includere opinioni, interpretazioni o giudizi — nemmeno la tua opinione sulla frase stessa.",
+  aiPromptFeit:"Voglio verificare una frase sui fatti. Indica solo affermazioni verificabili con fonti ufficiali e indipendenti. Scegli fonti adatte al paese di cui parla la frase — ad esempio l'istituto nazionale di statistica (come Istat in Italia, CBS nei Paesi Bassi, Destatis in Germania, INSEE in Francia, ONS nel Regno Unito), dati governativi, servizi di ricerca parlamentare, organismi internazionali come Eurostat o l'OCSE per confronti tra paesi, oppure organizzazioni di fact-checking affidabili. Indica per ogni fatto quale fonte hai usato. Non includere opinioni, interpretazioni o giudizi — nemmeno la tua opinione sulla frase stessa.",
   aiPromptRedenering:"Voglio analizzare il ragionamento dietro una frase, non giudicare se è vera. Dividi il ragionamento in passaggi separati: premessa → meccanismo → conclusione. Per ogni passaggio, dai anche un contro-argomento altrettanto forte, così i punti deboli diventano visibili. Non prendere posizione e non dare un giudizio finale.",
   aiPromptInterpretatie:"Dai almeno tre modi diversi ed equivalenti per spiegare o interpretare la frase seguente (per esempio da diverse prospettive scientifiche o politiche). Mettili uno accanto all'altro senza indicarne uno come 'più giusto' o 'più probabile'. Non dare una tua preferenza o un giudizio finale.",
   voorbeeldNotitie:"Attenzione: non hai ancora inserito una tua frase. Questo è il testo di esempio, solo per mostrare come funziona.",
@@ -551,13 +558,14 @@ de:{
   plakInstructie:"Öffne Gemini, ChatGPT oder eine andere KI-App. Füge den Text unten dort ein. Du bekommst dann eine Erklärung in deiner Sprache.",
   kopieerKnop:"Text kopieren",
   gekopieerd:"Kopiert!",
+  deelKnop:"Teilen",
   aiPromptTitel:"Frag die KI",
   aiUitleg:"Möchtest du Hilfe? Frag die KI für jeden Teil einzeln und füge die Antwort in das passende Feld ein.",
   aiKnopFeit:"🤖 KI fragen: Fakten",
   aiKnopRedenering:"🤖 KI fragen: Gedankengang",
   aiKnopInterpretatie:"🤖 KI fragen: andere Sicht",
   stellingWoord:"Aussage:",
-  aiPromptFeit:"Ich möchte eine Aussage auf Fakten prüfen. Nenne nur Behauptungen, die man mit offiziellen Quellen prüfen kann (z. B. amtliche Statistiken, Regierungsdaten oder Wahlprogramme). Gib bei jedem Fakt an, wo man ihn prüfen kann. Lass Meinungen, Interpretationen und Urteile komplett weg — auch deine eigene Meinung zur Aussage selbst.",
+  aiPromptFeit:"Ich möchte eine Aussage auf Fakten prüfen. Nenne nur Behauptungen, die man mit offiziellen, unabhängigen Quellen prüfen kann. Wähle Quellen, die zum Land passen, um das es in der Aussage geht — zum Beispiel das nationale Statistikamt (wie Destatis in Deutschland, CBS in den Niederlanden, INSEE in Frankreich, ONS im Vereinigten Königreich), amtliche Daten, parlamentarische Forschungsdienste, internationale Stellen wie Eurostat oder die OECD bei Ländervergleichen, oder anerkannte Faktencheck-Organisationen. Gib bei jedem Fakt an, welche Quelle du verwendet hast. Lass Meinungen, Interpretationen und Urteile komplett weg — auch deine eigene Meinung zur Aussage selbst.",
   aiPromptRedenering:"Ich möchte den Gedankengang hinter einer Aussage zerlegen, nicht beurteilen, ob sie stimmt. Teile den Gedankengang in einzelne Schritte: Annahme → Mechanismus → Schluss. Gib bei jedem Schritt auch ein gleich starkes Gegenargument, damit schwache Stellen sichtbar werden. Nimm selbst keine Seite ein und fälle kein Endurteil.",
   aiPromptInterpretatie:"Gib mindestens drei verschiedene, gleichwertige Arten, die folgende Aussage zu erklären oder zu deuten (zum Beispiel aus unterschiedlichen wissenschaftlichen oder politischen Blickwinkeln). Stelle sie nebeneinander, ohne eine als 'richtiger' oder 'wahrscheinlicher' zu bezeichnen. Gib keine eigene Präferenz oder ein Endurteil.",
   voorbeeldNotitie:"Achtung: Du hast noch keine eigene Aussage eingegeben. Das ist der Beispieltext, nur um zu zeigen, wie es funktioniert.",
@@ -610,13 +618,14 @@ fr:{
   plakInstructie:"Ouvre Gemini, ChatGPT ou une autre appli IA. Colle le texte ci-dessous là-bas. Tu recevras une explication dans ta langue.",
   kopieerKnop:"Copier le texte",
   gekopieerd:"Copié !",
+  deelKnop:"Partager",
   aiPromptTitel:"Demande à l'IA",
   aiUitleg:"Tu veux de l'aide ? Demande à l'IA pour chaque partie et colle la réponse dans le champ correspondant.",
   aiKnopFeit:"🤖 Demander à l'IA : faits",
   aiKnopRedenering:"🤖 Demander à l'IA : raisonnement",
   aiKnopInterpretatie:"🤖 Demander à l'IA : autre regard",
   stellingWoord:"Énoncé :",
-  aiPromptFeit:"Je veux vérifier une phrase sur les faits. Indique seulement des affirmations vérifiables avec des sources officielles (statistiques officielles, données gouvernementales ou programmes électoraux). Indique pour chaque fait où le vérifier. Laisse complètement de côté les opinions, interprétations et jugements — y compris ton propre avis sur la phrase elle-même.",
+  aiPromptFeit:"Je veux vérifier une phrase sur les faits. Indique seulement des affirmations vérifiables avec des sources officielles et indépendantes. Choisis des sources adaptées au pays dont parle la phrase — par exemple l'institut national de statistique (comme l'INSEE en France, le CBS aux Pays-Bas, Destatis en Allemagne, l'ONS au Royaume-Uni), des données gouvernementales, des services de recherche parlementaire, des organismes internationaux comme Eurostat ou l'OCDE pour les comparaisons entre pays, ou des organisations de vérification des faits reconnues. Indique pour chaque fait quelle source tu as utilisée. Laisse complètement de côté les opinions, interprétations et jugements — y compris ton propre avis sur la phrase elle-même.",
   aiPromptRedenering:"Je veux analyser le raisonnement derrière une phrase, pas juger si elle est vraie. Découpe le raisonnement en étapes séparées : hypothèse → mécanisme → conclusion. Donne aussi, pour chaque étape, un contre-argument tout aussi solide, afin de révéler les points faibles. Ne prends pas parti et ne donne pas de jugement final.",
   aiPromptInterpretatie:"Donne au moins trois façons différentes et équivalentes d'expliquer ou d'interpréter la phrase suivante (par exemple sous différents angles scientifiques ou politiques). Mets-les côte à côte sans en présenter une comme 'plus juste' ou 'plus probable'. Ne donne pas ta propre préférence ni de jugement final.",
   voorbeeldNotitie:"Attention : tu n'as pas encore saisi ta propre phrase. Ceci est le texte d'exemple, juste pour montrer comment ça marche.",
@@ -684,6 +693,7 @@ function render(){
   document.getElementById('tx-prompttitel').textContent = t.promptTitel;
   document.getElementById('tx-plakinstructie').textContent = t.plakInstructie;
   document.getElementById('btn-kopieer').textContent = t.kopieerKnop;
+  document.getElementById('btn-deel').textContent = t.deelKnop;
   bouwVertaalLijst();
 
   renderBib();
@@ -827,6 +837,7 @@ function kiesAiPrompt(laag){
   document.getElementById('tx-prompttitel').textContent = t.aiPromptTitel;
   document.getElementById('tx-plakinstructie').textContent = t.plakInstructie;
   document.getElementById('btn-kopieer').textContent = t.kopieerKnop;
+  document.getElementById('btn-deel').textContent = t.deelKnop;
 
   const eigenStelling = document.getElementById('n-stelling').value.trim();
   toonVoorbeeldNotitie(!eigenStelling);
@@ -846,6 +857,7 @@ function kiesVertaalTaal(taalnaam){
   document.getElementById('tx-prompttitel').textContent = vt.promptTitel;
   document.getElementById('tx-plakinstructie').textContent = vt.plakInstructie;
   document.getElementById('btn-kopieer').textContent = vt.kopieerKnop;
+  document.getElementById('btn-deel').textContent = vt.deelKnop;
   if(vt.rtl){ modalBox.setAttribute('dir','rtl'); ta.setAttribute('dir','rtl'); }
   else { modalBox.removeAttribute('dir'); ta.removeAttribute('dir'); }
 
@@ -876,7 +888,17 @@ function kopieerPrompt(){
   }
 }
 
-function openModal(id){ document.getElementById(id).classList.add('open'); }
+function deelPrompt(){
+  const ta = document.getElementById('prompt-tekst');
+  if(navigator.share){
+    navigator.share({ text: ta.value }).catch(()=>{});
+  }
+}
+
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  document.getElementById('btn-deel').style.display = navigator.share ? 'block' : 'none';
+}
 function sluitModal(id){
   document.getElementById(id).classList.remove('open');
   if(id === 'prompt-modal'){
@@ -885,6 +907,7 @@ function sluitModal(id){
     document.getElementById('tx-prompttitel').textContent = t.promptTitel;
     document.getElementById('tx-plakinstructie').textContent = t.plakInstructie;
     document.getElementById('btn-kopieer').textContent = t.kopieerKnop;
+    document.getElementById('btn-deel').textContent = t.deelKnop;
     document.querySelector('#prompt-modal .modal-box').removeAttribute('dir');
     document.getElementById('prompt-tekst').removeAttribute('dir');
     document.getElementById('tx-voorbeeldnotitie').style.display = 'none';
