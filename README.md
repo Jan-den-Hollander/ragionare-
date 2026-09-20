@@ -2,7 +2,7 @@
 
 Knipt een uitspraak in stukjes, zodat je zelf kunt nadenken: wat je kunt nakijken, hoe de gedachte loopt en andere manieren om ernaar te kijken. De app zegt niet wat waar is. Hulp van een AI-app naar keuze kan, met een kant-en-klare tekst om te kopiëren. In het Nederlands, Italiaans, Duits en Frans; de AI-tekst ook in 14 andere talen.
 
-Divide una frase in pezzi piccoli, così puoi pensare da solo: cosa puoi controllare, come va il ragionamento e altri modi di vedere le cose. L'app non dice cosa è vero. Puoi farti aiutare da un'app AI a tua scelta con un testo già pronto da copiare. In olandese, italiano, tedesco e francese; il testo per l'IA anche in altre 14 lingue.
+IT-Divide una frase in pezzi piccoli, così puoi pensare da solo: cosa puoi controllare, come va il ragionamento e altri modi di vedere le cose. L'app non dice cosa è vero. Puoi farti aiutare da un'app AI a tua scelta con un testo già pronto da copiare. In olandese, italiano, tedesco e francese; il testo per l'IA anche in altre 14 lingue.
 
 **▶ Direct gebruiken · Usa subito:** https://ragionare.vercel.app
 
